@@ -79,6 +79,26 @@ app.post('/login-user', (req, res) => {
         }
     })
 })
+/*app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+*/
+// Add Expense
+app.post('/add-expense', async (req, res) => {
+    const { amount, category, description } = req.body;
+
+    try {
+        const result = await pool.query(
+            'INSERT INTO expenses (amount, category, description) VALUES ($1, $2, $3) RETURNING *',
+            [amount, category, description]
+        );
+        const expense = result.rows[0];
+        res.json(expense);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
 
 app.listen(3000, (req, res) => {
     console.log('listening on port 3000......')
