@@ -14,7 +14,8 @@
     "express.js": "^1.0.0",
     "knex": "^3.1.0",
     "nodemon": "^3.1.4",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "yahoo-finance2": "^2.12.3"
   },
   "keywords": [],
   "description": ""

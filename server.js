@@ -3,7 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const knex = require('knex');
 const cors = require('cors'); 
-
+const yahooFinance = require('yahoo-finance2').default;
 const db = knex({
     client: 'pg',
     connection: {
@@ -25,6 +25,10 @@ app.use(express.static(intialPath));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join("greenhome.html"));
+})
+
+app.get('/mutual', (req, res) => {
+    res.sendFile(path.join("mutual.html"));
 })
 
 app.get('/sip', (req, res) =>{
@@ -79,24 +83,26 @@ app.post('/login-user', (req, res) => {
         }
     })
 })
-/*app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
-*/
-// Add Expense
-app.post('/add-expense', async (req, res) => {
-    const { amount, category, description } = req.body;
 
+app.post('/mquotes', async (req, res) => {
     try {
-        const result = await pool.query(
-            'INSERT INTO expenses (amount, category, description) VALUES ($1, $2, $3) RETURNING *',
-            [amount, category, description]
-        );
-        const expense = result.rows[0];
-        res.json(expense);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+        const symbols = Object.keys(req.body); // Expecting an object with stock names as keys
+        
+        
+        if (symbols.length === 0) {
+            return res.status(400).send("No symbols provided.");
+        }
+
+        const quotes = await yahooFinance.quote(symbols);
+        
+        if (quotes && Object.keys(quotes).length > 0) {
+            res.json(quotes);
+        } else {
+            res.status(404).send("Market prices not found for the provided symbols.");
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("An error occurred while fetching the quotes.");
     }
 });
 
